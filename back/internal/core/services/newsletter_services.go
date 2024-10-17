@@ -2,35 +2,31 @@ package services
 
 import (
 	"context"
-	"fmt"
-	"io"
-	"net/http"
-	"strings"
 
 	"github.com/DongnutLa/newsletter_app/internal/core/domain"
 	"github.com/DongnutLa/newsletter_app/internal/core/ports"
 	"github.com/DongnutLa/newsletter_app/internal/repositories"
-	"github.com/DongnutLa/newsletter_app/internal/utils"
 	"github.com/rs/zerolog"
-	gomail "gopkg.in/mail.v2"
 )
 
 type NewsletterService struct {
 	logger         *zerolog.Logger
 	newsletterRepo *repositories.NewsletterRepository
-	mailDialer     *gomail.Dialer
-	mail           string
+	messaging      ports.EventMessaging
 }
 
 var _ ports.NewsletterService = (*NewsletterService)(nil)
 
-func NewNewsletterService(ctx context.Context, logger *zerolog.Logger, repository *repositories.NewsletterRepository, dialer *gomail.Dialer) *NewsletterService {
-	mail := utils.GetConfig("smtp_mail")
+func NewNewsletterService(
+	ctx context.Context,
+	logger *zerolog.Logger,
+	repository *repositories.NewsletterRepository,
+	messaging ports.EventMessaging,
+) *NewsletterService {
 	return &NewsletterService{
 		logger:         logger,
 		newsletterRepo: repository,
-		mailDialer:     dialer,
-		mail:           mail,
+		messaging:      messaging,
 	}
 }
 
@@ -70,8 +66,6 @@ func (n *NewsletterService) CreateNewsletter(ctx context.Context, dto *domain.Cr
 }
 
 func (n *NewsletterService) SendNewsletter(ctx context.Context, dto *domain.SendNewsletterDTO) *domain.ApiError {
-	message := gomail.NewMessage()
-
 	newsletter := domain.Newsletter{}
 
 	opts := ports.FindOneOpts{
@@ -83,37 +77,14 @@ func (n *NewsletterService) SendNewsletter(ctx context.Context, dto *domain.Send
 		return domain.ErrNewsletterNotFound
 	}
 
-	recipients := newsletter.Recipients
-	if dto.ExtraEmail != "" {
-		recipients = append(recipients, dto.ExtraEmail)
+	// Send email event
+	evt := domain.MessageEvent{
+		EventTopic: domain.SendEmailTopic,
+		Data: map[string]interface{}{
+			"newsletter": &newsletter,
+		},
 	}
-
-	// Set email headers
-	message.SetHeader("From", n.mail)
-	message.SetHeader("To", recipients...)
-	message.SetHeader("Subject", newsletter.Subject)
-
-	//Attatch file
-	template := fmt.Sprintf(`
-		%s
-		<p>Unsubscribe here</p>
-	`, newsletter.Template)
-	message.SetBody("text/html", template)
-
-	file, ext, err := downloadFile(newsletter.File)
-	if err != nil {
-		n.logger.Error().Err(err).Msg("Failed to use image for email")
-		return domain.ErrFetchFile
-	}
-	defer file.Close()
-	message.AttachReader(fmt.Sprintf("newsletter.%s", ext), file)
-
-	if err := n.mailDialer.DialAndSend(message); err != nil {
-		n.logger.Error().Err(err).Msg("Failed to send email")
-		return domain.ErrSendEmailFailed
-	} else {
-		n.logger.Info().Msg("Email sent successfully")
-	}
+	n.messaging.SendMessage(ctx, &evt)
 
 	return nil
 }
@@ -121,24 +92,4 @@ func (n *NewsletterService) SendNewsletter(ctx context.Context, dto *domain.Send
 func (n *NewsletterService) ScheduleNewsletter(ctx context.Context) *domain.ApiError {
 	//
 	return nil
-}
-
-func downloadFile(url string) (io.ReadCloser, string, error) {
-	// Realiza la solicitud GET a la URL
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, "", fmt.Errorf("error realizando solicitud GET: %v", err)
-	}
-	// defer resp.Body.Close()
-
-	// Verifica que la solicitud sea exitosa (código de estado 200)
-	if resp.StatusCode != http.StatusOK {
-		return nil, "", fmt.Errorf("error en la respuesta del servidor: %v", resp.Status)
-	}
-
-	splitted := strings.Split(url, ".")
-	ext := splitted[len(splitted)-1]
-
-	// Puedes retornar el io.Reader (resp.Body) o leer los datos desde ahí
-	return resp.Body, ext, nil
 }

@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"sync"
+	"time"
 
+	"github.com/DongnutLa/newsletter_app/internal/core/ports"
 	"github.com/DongnutLa/newsletter_app/internal/core/services"
 	"github.com/DongnutLa/newsletter_app/internal/handlers"
 	"github.com/DongnutLa/newsletter_app/internal/middlewares"
@@ -40,12 +43,17 @@ func main() {
 	adminRepository := repositories.NewAdminRepository(context.TODO(), "admins", conn.Database, &logger)
 	newsletterRepository := repositories.NewNewsletterRepository(context.TODO(), "newsletters", conn.Database, &logger)
 
+	services.MessagingInit()
+	eventType := ports.UseBUS
+	messaging := services.NewEventMessaging(&logger, eventType)
+
 	//services
 	jwtService := services.NewJwtService([]byte(jwtKey), &logger)
 	userService := services.NewUserService(context.TODO(), &logger, userRepository)
 	adminService := services.NewAdminService(context.TODO(), &logger, adminRepository, jwtService)
-	newsletterService := services.NewNewsletterService(context.TODO(), &logger, newsletterRepository, dialer)
+	newsletterService := services.NewNewsletterService(context.TODO(), &logger, newsletterRepository, messaging)
 	fileService := services.NewFilesService(context.TODO(), &logger)
+	mailService := services.NewMailService(context.TODO(), &logger, dialer)
 
 	//handlers
 	userHandlers := handlers.NewUserHandlers(userService)
@@ -56,6 +64,17 @@ func main() {
 	//Middlewares
 	authMiddleware := middlewares.NewAuthMiddleware(&logger, jwtService)
 	fileMiddleware := middlewares.NewFileMiddleware(&logger)
+
+	// ========= Messaging =========
+	msgNow := time.Now()
+	var wg sync.WaitGroup
+	defer wg.Wait()
+
+	handler := handlers.NewEventsHandler(context.TODO(), &logger, mailService)
+	handler.Start(&wg)
+	defer handler.Stop()
+	logger.Info().Msgf("Messaging init time: %dms", time.Since(msgNow).Milliseconds())
+	// ========= Messaging =========
 
 	//server
 	httpServer := server.NewServer(
