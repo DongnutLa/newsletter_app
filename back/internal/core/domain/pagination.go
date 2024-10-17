@@ -8,8 +8,8 @@ type Pagination struct {
 }
 
 type PaginatedResponse[T any] struct {
-	Metadata Pagination
-	Data     []T
+	Metadata Pagination `json:"metadata"`
+	Data     []T        `json:"data"`
 }
 
 type PaginationsParams struct {

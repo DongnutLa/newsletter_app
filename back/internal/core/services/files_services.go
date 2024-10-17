@@ -42,5 +42,7 @@ func (s *FilesService) SaveFile(ctx context.Context, buf *bytes.Buffer, fileName
 		return "", domain.ErrUploadFile
 	}
 
+	s.logger.Info().Str("url", result.SecureURL).Msg("Saved image in bucket")
+
 	return result.SecureURL, nil
 }

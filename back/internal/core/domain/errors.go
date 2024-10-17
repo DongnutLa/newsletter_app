@@ -62,23 +62,29 @@ var (
 		fiber.StatusInternalServerError,
 		9,
 	)
+	ErrFetchUser = NewApiError(
+		"Failed to fetch users",
+		UserErrors,
+		fiber.StatusInternalServerError,
+		10,
+	)
 
 	ErrFailedToParseBody = NewApiError(
 		"Failed to parse body",
 		GeneralErrors,
 		fiber.StatusInternalServerError,
-		10,
+		11,
 	)
 	ErrInvalidParams = NewApiError(
 		"Invalid params",
 		GeneralErrors,
 		fiber.StatusBadRequest,
-		11,
+		12,
 	)
 	ErrGenerateToken = NewApiError(
 		"Unable to generate token access",
 		GeneralErrors,
 		fiber.StatusInternalServerError,
-		12,
+		13,
 	)
 )

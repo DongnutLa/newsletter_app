@@ -23,6 +23,19 @@ func NewUserService(ctx context.Context, logger *zerolog.Logger, repository *rep
 	}
 }
 
+func (u *UserService) ListUsers(ctx context.Context) (*[]domain.User, *domain.ApiError) {
+	users := []domain.User{}
+	opts := ports.FindManyOpts{}
+
+	_, err := u.userRepo.Repo.FindMany(ctx, opts, &users, false)
+	if err != nil {
+		u.logger.Error().Err(err).Msg("Failed to fetch users")
+		return nil, domain.ErrFetchUser
+	}
+
+	return &users, nil
+}
+
 func (u *UserService) RegisterToNewsletter(ctx context.Context, email string) *domain.ApiError {
 	newUser := domain.NewUser(email)
 

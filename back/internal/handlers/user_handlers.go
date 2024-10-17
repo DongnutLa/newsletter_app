@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+
 	"github.com/DongnutLa/newsletter_app/internal/core/ports"
 	"github.com/gofiber/fiber/v2"
 )
@@ -16,6 +18,15 @@ func NewUserHandlers(userService ports.UserService) *UserHandlers {
 	return &UserHandlers{
 		userService: userService,
 	}
+}
+
+func (h *UserHandlers) ListUsers(c *fiber.Ctx) error {
+	users, apiErr := h.userService.ListUsers(context.TODO())
+	if apiErr != nil {
+		return c.Status(apiErr.HttpStatusCode).JSON(apiErr)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(users)
 }
 
 func (h *UserHandlers) RegisterToNewsletter(c *fiber.Ctx) error {

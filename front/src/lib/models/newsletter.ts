@@ -19,3 +19,10 @@ export interface SendNewsletterDTO {
   newsletterId: string;
   extraEmail?: string;
 }
+
+export const CREATE_NEWSLETTER_DTO_INITIALS: CreateNewsletterDTO = {
+  template: "",
+  file: "",
+  recipients: [],
+  subject: "",
+};

@@ -7,10 +7,13 @@ export const registerToNewsletters = async (email: string): Promise<void> => {
   });
 };
 
-export const listUsers = async (): Promise<string[]> => {
-  const res = await axiosMethod<{ id: string; email: string }[]>({
-    name: "listUsers",
-  });
+export const listUsers = async (serverToken?: string): Promise<string[]> => {
+  const res = await axiosMethod<{ id: string; email: string }[]>(
+    {
+      name: "listUsers",
+    },
+    serverToken
+  );
 
   return res.data.map((d) => d.email);
 };

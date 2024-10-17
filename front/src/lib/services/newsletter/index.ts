@@ -6,17 +6,23 @@ import {
 } from "@/lib/models";
 import { axiosMethod } from "../api/axios";
 
-export const listNewsletters = async ({
-  page,
-  pageSize,
-}: {
-  page: number;
-  pageSize: number;
-}): Promise<Paginated<Newsletter>> => {
-  const res = await axiosMethod<Paginated<Newsletter>>({
-    name: "listNewsletters",
-    params: { page, pageSize },
-  });
+export const listNewsletters = async (
+  {
+    page,
+    pageSize,
+  }: {
+    page: number;
+    pageSize: number;
+  },
+  serverToken?: string
+): Promise<Paginated<Newsletter>> => {
+  const res = await axiosMethod<Paginated<Newsletter>>(
+    {
+      name: "listNewsletters",
+      params: { page, pageSize },
+    },
+    serverToken
+  );
 
   return res.data;
 };

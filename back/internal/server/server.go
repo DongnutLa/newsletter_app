@@ -44,6 +44,7 @@ func (s *Server) Initialize() {
 	v1 := app.Group("/v1")
 
 	usersRoute := v1.Group("/users")
+	usersRoute.Get("", s.authMiddleware, s.userHandlers.ListUsers)
 	usersRoute.Get("/register", s.userHandlers.RegisterToNewsletter)
 	usersRoute.Get("/unregister", s.userHandlers.UnregisterToNewsletter)
 

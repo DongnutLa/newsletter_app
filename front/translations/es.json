@@ -18,5 +18,28 @@
     "success": "Bienvenido/a {name}",
     "error": "{error}",
     "invalidAuth": "Credenciales inválidas {error}"
-  }
+  },
+  "Newsletter": {
+    "title": "Boletines",
+    "send": "Enviar",
+    "pending": "Enviando boletin...",
+    "success": "Boletin enviado correctamente",
+    "error": "Hubo un error enviando el boletin",
+    "createNewsletter": "Crear nuevo boletín",
+    "Form": {
+      "title": "Crear boletín",
+      "recipients": "Destinatarios",
+      "placeholder": {
+        "template": "Plantilla HTML",
+        "subject": "Ausnto",
+        "recipients": "Agregar correos"
+      },
+      "addItem": "Agregar",
+      "submit": "Crear",
+      "pending": "Guardando cambios...",
+      "success": "Boletín creado correctamente",
+      "error": "Hubo un error creando el boletin. {error}"
+    }
+  },
+  "UploadImage": "Subir archivo"
 }

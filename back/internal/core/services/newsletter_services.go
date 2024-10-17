@@ -83,7 +83,10 @@ func (n *NewsletterService) SendNewsletter(ctx context.Context, dto *domain.Send
 		return domain.ErrNewsletterNotFound
 	}
 
-	recipients := append(newsletter.Recipients, dto.ExtraEmail)
+	recipients := newsletter.Recipients
+	if dto.ExtraEmail != "" {
+		recipients = append(recipients, dto.ExtraEmail)
+	}
 
 	// Set email headers
 	message.SetHeader("From", n.mail)
