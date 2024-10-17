@@ -13,6 +13,7 @@ type Server struct {
 	userHandlers       ports.UserHandlers
 	adminHandlers      ports.AdminHandlers
 	newsletterHandlers ports.NewsletterHandlers
+	topicHandlers      ports.TopicHandlers
 	filesHandlers      ports.FilesHandlers
 	fileMiddleware     fiber.Handler
 	authMiddleware     fiber.Handler
@@ -24,6 +25,7 @@ func NewServer(
 	aHandlers ports.AdminHandlers,
 	nHandlers ports.NewsletterHandlers,
 	fHandlers ports.FilesHandlers,
+	tHandlers ports.TopicHandlers,
 	fileMiddleware fiber.Handler,
 	authMiddleware fiber.Handler,
 ) *Server {
@@ -32,6 +34,7 @@ func NewServer(
 		adminHandlers:      aHandlers,
 		newsletterHandlers: nHandlers,
 		filesHandlers:      fHandlers,
+		topicHandlers:      tHandlers,
 		fileMiddleware:     fileMiddleware,
 		authMiddleware:     authMiddleware,
 	}
@@ -59,6 +62,9 @@ func (s *Server) Initialize() {
 
 	filesRoutes := v1.Group("/files")
 	filesRoutes.Post("/upload", s.authMiddleware, s.fileMiddleware, s.filesHandlers.SaveFile)
+
+	topicsRoutes := v1.Group("/topics")
+	topicsRoutes.Get("/", s.topicHandlers.ListTopics)
 
 	err := app.Listen(":3000")
 	if err != nil {

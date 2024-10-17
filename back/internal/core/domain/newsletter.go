@@ -8,6 +8,7 @@ type Newsletter struct {
 	Subject    string             `json:"subject" bson:"subject"`
 	File       string             `json:"file" bson:"file"`
 	Recipients []string           `json:"recipients" bson:"recipients"`
+	Topic      string             `json:"topic" bson:"topic"`
 	Active     bool               `json:"active" bson:"active"`
 	Schedule   string             `json:"schedule" bson:"schedule"`
 }
@@ -21,5 +22,6 @@ func NewNewsletter(dto *CreateNewsletterDTO) *Newsletter {
 		File:       dto.File,
 		Recipients: dto.Recipients,
 		Subject:    dto.Subject,
+		Topic:      dto.Topic,
 	}
 }

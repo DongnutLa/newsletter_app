@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/DongnutLa/newsletter_app/internal/core/ports"
 	"github.com/gofiber/fiber/v2"
@@ -21,7 +23,8 @@ func NewUserHandlers(userService ports.UserService) *UserHandlers {
 }
 
 func (h *UserHandlers) ListUsers(c *fiber.Ctx) error {
-	users, apiErr := h.userService.ListUsers(context.TODO())
+	topic := c.Query("topic", "")
+	users, apiErr := h.userService.ListUsers(context.TODO(), topic)
 	if apiErr != nil {
 		return c.Status(apiErr.HttpStatusCode).JSON(apiErr)
 	}
@@ -31,8 +34,10 @@ func (h *UserHandlers) ListUsers(c *fiber.Ctx) error {
 
 func (h *UserHandlers) RegisterToNewsletter(c *fiber.Ctx) error {
 	email := c.Query("email", "")
+	topicsQuery := c.Query("topics", "")
+	topics := strings.Split(topicsQuery, ",")
 
-	apiErr := h.userService.RegisterToNewsletter(c.Context(), email)
+	apiErr := h.userService.RegisterToNewsletter(c.Context(), email, topics)
 	if apiErr != nil {
 		return c.Status(apiErr.HttpStatusCode).JSON(apiErr)
 	}
@@ -44,12 +49,14 @@ func (h *UserHandlers) RegisterToNewsletter(c *fiber.Ctx) error {
 
 func (h *UserHandlers) UnregisterToNewsletter(c *fiber.Ctx) error {
 	email := c.Query("email", "")
+	topic := c.Query("topic", "")
 
-	apiErr := h.userService.UnregisterToNewsletter(c.Context(), email)
+	apiErr := h.userService.UnregisterToNewsletter(c.Context(), email, topic)
 	if apiErr != nil {
 		return c.Status(apiErr.HttpStatusCode).JSON(apiErr)
 	}
 
-	c.Status(fiber.StatusOK).SendString("OK")
+	c.Status(fiber.StatusOK).SendString(fmt.Sprintf("%s, You have been successfully unsubscribed from newsletters for topic %s", email, topic))
+
 	return nil
 }

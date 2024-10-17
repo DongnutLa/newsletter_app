@@ -7,6 +7,7 @@ import (
 	"github.com/DongnutLa/newsletter_app/internal/core/ports"
 	"github.com/DongnutLa/newsletter_app/internal/repositories"
 	"github.com/rs/zerolog"
+	"github.com/samber/lo"
 )
 
 type NewsletterService struct {
@@ -85,6 +86,47 @@ func (n *NewsletterService) SendNewsletter(ctx context.Context, dto *domain.Send
 		},
 	}
 	n.messaging.SendMessage(ctx, &evt)
+
+	return nil
+}
+
+func (n *NewsletterService) UnregisterUserFromNewsletter(ctx context.Context, payload map[string]interface{}, topic string) error {
+	n.logger.Info().Interface("payload", payload).Msgf("Message received for topic %s", topic)
+
+	newsTopic := payload["topic"].(string)
+	email := payload["email"].(string)
+
+	newsletter := domain.Newsletter{}
+	opts := ports.FindOneOpts{
+		Filter: map[string]interface{}{
+			"topic": newsTopic,
+		},
+	}
+	if err := n.newsletterRepo.Repo.FindOne(ctx, opts, &newsletter); err != nil {
+		n.logger.Error().Err(err).Msgf("Newsletter for topic %s not found", newsTopic)
+		return err
+	}
+
+	newRecipients := lo.Filter(newsletter.Recipients, func(recipient string, _ int) bool {
+		return email != recipient
+	})
+
+	updOpts := ports.UpdateOpts{
+		Filter: map[string]interface{}{
+			"topic": newsTopic,
+		},
+		Payload: &map[string]interface{}{
+			"recipients": newRecipients,
+		},
+	}
+
+	_, err := n.newsletterRepo.Repo.UpdateOne(ctx, updOpts)
+	if err != nil {
+		n.logger.Error().Err(err).Msgf("Failed to update newsletter for topic %s", newsTopic)
+		return err
+	}
+
+	n.logger.Error().Err(err).Msgf("Successfully updated newsletter for topic %s and user %s", newsTopic, email)
 
 	return nil
 }

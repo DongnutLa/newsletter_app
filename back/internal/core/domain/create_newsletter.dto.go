@@ -5,4 +5,5 @@ type CreateNewsletterDTO struct {
 	File       string   `json:"file"`
 	Subject    string   `json:"subject"`
 	Recipients []string `json:"recipients"`
+	Topic      string   `json:"topic"`
 }

@@ -9,6 +9,7 @@ require (
 	github.com/mustafaturan/bus/v3 v3.0.3
 	github.com/mustafaturan/monoton/v3 v3.0.0
 	github.com/rs/zerolog v1.33.0
+	github.com/samber/lo v1.47.0
 	github.com/spf13/viper v1.19.0
 	go.mongodb.org/mongo-driver v1.17.1
 	gopkg.in/mail.v2 v2.3.1

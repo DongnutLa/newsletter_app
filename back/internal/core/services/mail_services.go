@@ -59,10 +59,10 @@ func (m *MailService) sendEmail(recipient string, newsletter *domain.Newsletter,
 	//Attatch file
 	template := fmt.Sprintf(`
     %s
-    <a href="http://localhost:3000/v1/users/unregister?email=%s">
-      <p>Unsubscribe here</p>
+    <a href="http://localhost:3000/v1/users/unregister?email=%s&topic=%s">
+      <p>Unsubscribe from this topic here</p>
     </a>
-  `, newsletter.Template, recipient)
+  `, newsletter.Template, recipient, newsletter.Topic)
 	message.SetBody("text/html", template)
 
 	file, ext, err := downloadFile(newsletter.File)

@@ -12,6 +12,7 @@ type NewsletterService interface {
 	CreateNewsletter(ctx context.Context, dto *domain.CreateNewsletterDTO) (*domain.Newsletter, *domain.ApiError)
 	SendNewsletter(ctx context.Context, dto *domain.SendNewsletterDTO) *domain.ApiError
 	ScheduleNewsletter(ctx context.Context) *domain.ApiError
+	UnregisterUserFromNewsletter(ctx context.Context, payload map[string]interface{}, topic string) error
 }
 
 type NewsletterHandlers interface {

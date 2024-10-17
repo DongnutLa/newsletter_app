@@ -87,4 +87,11 @@ var (
 		fiber.StatusInternalServerError,
 		13,
 	)
+
+	ErrFetchTopic = NewApiError(
+		"Failed to fetch topics",
+		TopicErrors,
+		fiber.StatusInternalServerError,
+		14,
+	)
 )

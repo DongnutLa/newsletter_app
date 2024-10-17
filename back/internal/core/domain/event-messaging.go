@@ -3,11 +3,13 @@ package domain
 type MessagingTopics string
 
 const (
-	SendEmailTopic MessagingTopics = "email.send"
+	SendEmailTopic              MessagingTopics = "email.send"
+	PropagateUserUnsubscription MessagingTopics = "user.newsletter.unsubscribe"
 )
 
 var TopicList = []string{
 	string(SendEmailTopic),
+	string(PropagateUserUnsubscription),
 }
 
 type MessageEvent struct {

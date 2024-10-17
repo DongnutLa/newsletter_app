@@ -125,3 +125,39 @@ func validateOID(val interface{}) interface{} {
 
 	return val
 }
+
+func (r *AbstractRepository[T, Q]) UpdateOne(ctx context.Context, opts ports.UpdateOpts) (*T, error) {
+	filterBson := bson.D{}
+	for key, value := range opts.Filter {
+		filterBson = append(filterBson, bson.E{Key: key, Value: validateOID(value)})
+	}
+
+	payloadBson := bson.D{}
+	if opts.Payload != nil {
+		for key, value := range *opts.Payload {
+			payloadBson = append(payloadBson, bson.E{Key: key, Value: value})
+		}
+	}
+
+	after := options.After
+	updtOpts := &options.FindOneAndUpdateOptions{
+		ReturnDocument: &after,
+	}
+
+	update := bson.D{{Key: "$set", Value: payloadBson}}
+
+	res := r.collection.FindOneAndUpdate(ctx, filterBson, update, updtOpts)
+	err := res.Err()
+	if err != nil {
+		r.logger.Err(err).Interface("filter", filterBson).Interface("payload", payloadBson).Msg("ERROR | Update One Repo")
+		return nil, err
+	}
+
+	var newData T
+	if err := res.Decode(&newData); err != nil {
+		r.logger.Err(err).Interface("filter", filterBson).Interface("payload", payloadBson).Msg("ERROR | Update One Repo <Decode Response>")
+		return nil, err
+	}
+
+	return &newData, nil
+}

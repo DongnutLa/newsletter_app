@@ -8,9 +8,9 @@ import (
 )
 
 type UserService interface {
-	ListUsers(ctx context.Context) (*[]domain.User, *domain.ApiError)
-	RegisterToNewsletter(ctx context.Context, email string) *domain.ApiError
-	UnregisterToNewsletter(ctx context.Context, email string) *domain.ApiError
+	ListUsers(ctx context.Context, topic string) (*[]domain.User, *domain.ApiError)
+	RegisterToNewsletter(ctx context.Context, email string, topics []string) *domain.ApiError
+	UnregisterToNewsletter(ctx context.Context, email string, topic string) *domain.ApiError
 }
 
 type UserHandlers interface {

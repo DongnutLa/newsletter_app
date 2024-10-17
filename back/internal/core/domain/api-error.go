@@ -13,6 +13,7 @@ var (
 	NewsletterErrors ErrorGroup = "NWS"
 	AdminErrors      ErrorGroup = "ADM"
 	FileErrors       ErrorGroup = "FIL"
+	TopicErrors      ErrorGroup = "TOP"
 )
 
 type ApiError struct {
