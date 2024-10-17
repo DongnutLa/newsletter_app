@@ -10,16 +10,18 @@ import (
 )
 
 type AdminService struct {
-	logger    *zerolog.Logger
-	adminRepo *repositories.AdminRepository
+	logger     *zerolog.Logger
+	adminRepo  *repositories.AdminRepository
+	jwtService *JwtService
 }
 
 var _ ports.AdminService = (*AdminService)(nil)
 
-func NewAdminService(ctx context.Context, logger *zerolog.Logger, repository *repositories.AdminRepository) *AdminService {
+func NewAdminService(ctx context.Context, logger *zerolog.Logger, repository *repositories.AdminRepository, jwtService *JwtService) *AdminService {
 	return &AdminService{
-		logger:    logger,
-		adminRepo: repository,
+		logger:     logger,
+		adminRepo:  repository,
+		jwtService: jwtService,
 	}
 }
 
@@ -38,9 +40,12 @@ func (a *AdminService) Login(ctx context.Context, dto *domain.LoginDTO) (*domain
 		return nil, domain.ErrInvalidCredentials
 	}
 
-	if admin.Password == dto.Password {
-		return &admin, nil
+	if admin.Password != dto.Password {
+		return nil, domain.ErrInvalidCredentials
 	}
 
-	return nil, domain.ErrInvalidCredentials
+	token, err := a.jwtService.GenerateJWT(admin.ID.Hex(), admin.Email, admin.Name)
+	admin.Token = token
+
+	return &admin, nil
 }

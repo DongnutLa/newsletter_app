@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/DongnutLa/newsletter_app/internal/core/domain"
 	"github.com/DongnutLa/newsletter_app/internal/core/ports"
@@ -33,14 +34,39 @@ func NewNewsletterService(ctx context.Context, logger *zerolog.Logger, repositor
 	}
 }
 
+func (n *NewsletterService) ListNewsletters(ctx context.Context, params *domain.PaginationsParams) (*domain.PaginatedResponse[domain.Newsletter], *domain.ApiError) {
+	result := []domain.Newsletter{}
+
+	opts := ports.FindManyOpts{
+		Take: params.PageSize,
+		Skip: params.PageSize * (params.Page - 1),
+	}
+	total, err := n.newsletterRepo.Repo.FindMany(ctx, opts, &result, true)
+	if err != nil {
+		return nil, domain.ErrFetchNewsletters
+	}
+
+	response := domain.PaginatedResponse[domain.Newsletter]{
+		Metadata: domain.Pagination{
+			Page:     params.Page,
+			PageSize: params.PageSize,
+			HasNext:  float64(params.Page) < (float64(*total) / float64(params.PageSize)),
+			Length:   *total,
+		},
+		Data: result,
+	}
+
+	return &response, nil
+}
+
 func (n *NewsletterService) CreateNewsletter(ctx context.Context, dto *domain.CreateNewsletterDTO) (*domain.Newsletter, *domain.ApiError) {
-	newsletter := domain.NewNewsletter(dto.Template, dto.File, dto.Recipients)
+	newsletter := domain.NewNewsletter(dto)
 
 	if err := n.newsletterRepo.Repo.InsertOne(ctx, *newsletter); err != nil {
 		return nil, domain.ErrCreateNewsletter
 	}
 
-	return nil, nil
+	return newsletter, nil
 }
 
 func (n *NewsletterService) SendNewsletter(ctx context.Context, dto *domain.SendNewsletterDTO) *domain.ApiError {
@@ -71,12 +97,13 @@ func (n *NewsletterService) SendNewsletter(ctx context.Context, dto *domain.Send
 	`, newsletter.Template)
 	message.SetBody("text/html", template)
 
-	file, err := downloadFile(newsletter.File)
+	file, ext, err := downloadFile(newsletter.File)
 	if err != nil {
 		n.logger.Error().Err(err).Msg("Failed to use image for email")
 		return domain.ErrFetchFile
 	}
-	message.AttachReader("newsletter", file)
+	defer file.Close()
+	message.AttachReader(fmt.Sprintf("newsletter.%s", ext), file)
 
 	if err := n.mailDialer.DialAndSend(message); err != nil {
 		n.logger.Error().Err(err).Msg("Failed to send email")
@@ -93,19 +120,22 @@ func (n *NewsletterService) ScheduleNewsletter(ctx context.Context) *domain.ApiE
 	return nil
 }
 
-func downloadFile(url string) (io.Reader, error) {
+func downloadFile(url string) (io.ReadCloser, string, error) {
 	// Realiza la solicitud GET a la URL
 	resp, err := http.Get(url)
 	if err != nil {
-		return nil, fmt.Errorf("error realizando solicitud GET: %v", err)
+		return nil, "", fmt.Errorf("error realizando solicitud GET: %v", err)
 	}
-	defer resp.Body.Close()
+	// defer resp.Body.Close()
 
 	// Verifica que la solicitud sea exitosa (código de estado 200)
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("error en la respuesta del servidor: %v", resp.Status)
+		return nil, "", fmt.Errorf("error en la respuesta del servidor: %v", resp.Status)
 	}
 
+	splitted := strings.Split(url, ".")
+	ext := splitted[len(splitted)-1]
+
 	// Puedes retornar el io.Reader (resp.Body) o leer los datos desde ahí
-	return resp.Body, nil
+	return resp.Body, ext, nil
 }

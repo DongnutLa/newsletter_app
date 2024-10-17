@@ -19,6 +19,22 @@ func NewNewsletterHandlers(newsletterService ports.NewsletterService) *Newslette
 	}
 }
 
+func (n *NewsletterHandlers) ListNewsletters(c *fiber.Ctx) error {
+	var params domain.PaginationsParams
+	err := c.QueryParser(&params)
+	if err != nil {
+		apiErr := domain.ErrInvalidParams
+		return c.Status(apiErr.HttpStatusCode).JSON(apiErr)
+	}
+
+	list, apiErr := n.newsletterService.ListNewsletters(c.Context(), &params)
+	if apiErr != nil {
+		return c.Status(apiErr.HttpStatusCode).JSON(apiErr)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(list)
+}
+
 func (n *NewsletterHandlers) CreateNewsletter(c *fiber.Ctx) error {
 	dto := domain.CreateNewsletterDTO{}
 
@@ -34,6 +50,7 @@ func (n *NewsletterHandlers) CreateNewsletter(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(newsletter)
 }
+
 func (n *NewsletterHandlers) SendNewsletter(c *fiber.Ctx) error {
 	dto := domain.SendNewsletterDTO{}
 

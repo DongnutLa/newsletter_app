@@ -26,6 +26,7 @@ func main() {
 	port := utils.GetConfig("smtp_port")
 	user := utils.GetConfig("smtp_user")
 	pwd := utils.GetConfig("smtp_pwd")
+	jwtKey := utils.GetConfig("jwt_key")
 
 	intPort, err := strconv.Atoi(port)
 	if err != nil {
@@ -38,9 +39,11 @@ func main() {
 	userRepository := repositories.NewUserRepository(context.TODO(), "users", conn.Database, &logger)
 	adminRepository := repositories.NewAdminRepository(context.TODO(), "admins", conn.Database, &logger)
 	newsletterRepository := repositories.NewNewsletterRepository(context.TODO(), "newsletters", conn.Database, &logger)
+
 	//services
+	jwtService := services.NewJwtService([]byte(jwtKey), &logger)
 	userService := services.NewUserService(context.TODO(), &logger, userRepository)
-	adminService := services.NewAdminService(context.TODO(), &logger, adminRepository)
+	adminService := services.NewAdminService(context.TODO(), &logger, adminRepository, jwtService)
 	newsletterService := services.NewNewsletterService(context.TODO(), &logger, newsletterRepository, dialer)
 	fileService := services.NewFilesService(context.TODO(), &logger)
 
@@ -51,6 +54,7 @@ func main() {
 	fileHandlers := handlers.NewFileHandlers(fileService)
 
 	//Middlewares
+	authMiddleware := middlewares.NewAuthMiddleware(&logger, jwtService)
 	fileMiddleware := middlewares.NewFileMiddleware(&logger)
 
 	//server
@@ -60,6 +64,7 @@ func main() {
 		newsletterHandlers,
 		fileHandlers,
 		fileMiddleware,
+		authMiddleware,
 	)
 	httpServer.Initialize()
 }

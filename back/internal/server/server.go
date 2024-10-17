@@ -14,16 +14,25 @@ type Server struct {
 	newsletterHandlers ports.NewsletterHandlers
 	filesHandlers      ports.FilesHandlers
 	fileMiddleware     fiber.Handler
+	authMiddleware     fiber.Handler
 	//middlewares ports.Middlewares
 }
 
-func NewServer(uHandlers ports.UserHandlers, aHandlers ports.AdminHandlers, nHandlers ports.NewsletterHandlers, fHandlers ports.FilesHandlers, fileMiddleware fiber.Handler) *Server {
+func NewServer(
+	uHandlers ports.UserHandlers,
+	aHandlers ports.AdminHandlers,
+	nHandlers ports.NewsletterHandlers,
+	fHandlers ports.FilesHandlers,
+	fileMiddleware fiber.Handler,
+	authMiddleware fiber.Handler,
+) *Server {
 	return &Server{
 		userHandlers:       uHandlers,
 		adminHandlers:      aHandlers,
 		newsletterHandlers: nHandlers,
 		filesHandlers:      fHandlers,
 		fileMiddleware:     fileMiddleware,
+		authMiddleware:     authMiddleware,
 	}
 }
 
@@ -36,14 +45,16 @@ func (s *Server) Initialize() {
 	usersRoute.Get("/unregister", s.userHandlers.UnregisterToNewsletter)
 
 	newslettersRoute := v1.Group("/newsletter")
-	newslettersRoute.Post("/send", s.newsletterHandlers.SendNewsletter)
-	newslettersRoute.Post("/schedule", s.newsletterHandlers.ScheduleNewsletter)
+	newslettersRoute.Get("/", s.authMiddleware, s.newsletterHandlers.ListNewsletters)
+	newslettersRoute.Post("/", s.authMiddleware, s.newsletterHandlers.CreateNewsletter)
+	newslettersRoute.Post("/send", s.authMiddleware, s.newsletterHandlers.SendNewsletter)
+	newslettersRoute.Post("/schedule", s.authMiddleware, s.newsletterHandlers.ScheduleNewsletter)
 
 	adminsRoutes := v1.Group("/admin")
 	adminsRoutes.Post("/login", s.adminHandlers.Login)
 
 	filesRoutes := v1.Group("/files")
-	filesRoutes.Post("/upload", s.fileMiddleware, s.filesHandlers.SaveFile)
+	filesRoutes.Post("/upload", s.authMiddleware, s.fileMiddleware, s.filesHandlers.SaveFile)
 
 	err := app.Listen(":3000")
 	if err != nil {

@@ -43,30 +43,42 @@ var (
 		fiber.StatusInternalServerError,
 		6,
 	)
+	ErrFetchNewsletters = NewApiError(
+		"Failed to fetch newsletters",
+		NewsletterErrors,
+		fiber.StatusInternalServerError,
+		7,
+	)
 
 	ErrAddUserFailed = NewApiError(
 		"Failed to add user to newsletters",
 		UserErrors,
 		fiber.StatusInternalServerError,
-		7,
+		8,
 	)
 	ErrDeleteUserFailed = NewApiError(
 		"Failed to delete user to newsletters",
 		UserErrors,
 		fiber.StatusInternalServerError,
-		8,
+		9,
 	)
 
 	ErrFailedToParseBody = NewApiError(
 		"Failed to parse body",
 		GeneralErrors,
 		fiber.StatusInternalServerError,
-		9,
+		10,
 	)
 	ErrInvalidParams = NewApiError(
 		"Invalid params",
 		GeneralErrors,
 		fiber.StatusBadRequest,
-		10,
+		11,
+	)
+	ErrGenerateToken = NewApiError(
+		"Unable to generate token access",
+		GeneralErrors,
+		fiber.StatusInternalServerError,
+		12,
 	)
 )

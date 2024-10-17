@@ -5,6 +5,7 @@ go 1.23.1
 require (
 	github.com/cloudinary/cloudinary-go/v2 v2.9.0
 	github.com/gofiber/fiber/v2 v2.52.5
+	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/viper v1.19.0
 	go.mongodb.org/mongo-driver v1.17.1
