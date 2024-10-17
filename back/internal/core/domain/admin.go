@@ -7,7 +7,7 @@ type Admin struct {
 	Email    string             `json:"email" bson:"email"`
 	Name     string             `json:"name" bson:"name"`
 	Password string             `json:"password" bson:"password"`
-	Token    string             `json:"token", bson:"-"`
+	Token    string             `json:"token" bson:"-"`
 }
 
 func NewAdmin(name, email string) *Admin {

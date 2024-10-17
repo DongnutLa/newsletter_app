@@ -1,0 +1,22 @@
+{
+  "Home": {
+    "title": "Suscríbete a nuestro boletin",
+    "subscribe": "Suscribirse",
+    "invalidEmail": "Digita un correo electrónico válido",
+    "subscribing": "Cargando...",
+    "subscribed": "{email} suscrito correctamente",
+    "subscribeError": "Ups! Hubo un error: {error}"
+  },
+  "Login": {
+    "title": "Iniciar sesión",
+    "placeholder": {
+      "email": "Correo electrónico",
+      "password": "Contraseña"
+    },
+    "submit": "Inciar sesión",
+    "pending": "Iniciando sesión...",
+    "success": "Bienvenido/a {name}",
+    "error": "{error}",
+    "invalidAuth": "Credenciales inválidas {error}"
+  }
+}

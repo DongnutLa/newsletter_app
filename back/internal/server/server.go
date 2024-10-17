@@ -5,6 +5,7 @@ import (
 
 	"github.com/DongnutLa/newsletter_app/internal/core/ports"
 	fiber "github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 type Server struct {
@@ -38,6 +39,8 @@ func NewServer(
 
 func (s *Server) Initialize() {
 	app := fiber.New()
+	app.Use(cors.New())
+
 	v1 := app.Group("/v1")
 
 	usersRoute := v1.Group("/users")
