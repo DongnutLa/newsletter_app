@@ -17,6 +17,7 @@ WORKDIR /app
 
 COPY --from=builder /app/newsletter .
 COPY .env .
+COPY ./internal/template /app/internal/template
 
 EXPOSE 3000
 

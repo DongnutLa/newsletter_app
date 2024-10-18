@@ -19,6 +19,7 @@ This App was developed with Go & React. Using MongoDB, Cloudinary as Bucket, SMT
 - Hexagonal architecture for backend development
 - Container/View Pattern for frontend development, separating external services from internal bussiness logic
 - Dockerized both Frontend and Backend and using docker-compose
+- Unit tests for newsletter list and send methods
 
 ## Execution
 
