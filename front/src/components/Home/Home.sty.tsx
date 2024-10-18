@@ -6,6 +6,12 @@ export const HomeWrapper = styled.main`
   height: 100vh;
   width: 100vw;
   background-color: #f53954;
+`;
+
+export const NewsletterWrapper = styled.div`
+  width: 500px;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
 `;
 
@@ -43,5 +49,10 @@ export const NewsletterSubmit = styled.button`
   &:hover {
     background-color: #ed6e80;
     transition: 0.3s;
+  }
+
+  &:disabled {
+    background-color: #ddc1c5;
+    cursor: not-allowed;
   }
 `;

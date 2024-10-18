@@ -3,6 +3,7 @@
     "title": "Suscríbete a nuestro boletin",
     "subscribe": "Suscribirse",
     "invalidEmail": "Digita un correo electrónico válido",
+    "emptyTopics": "Selecciona algunos temas para suscribirte",
     "subscribing": "Cargando...",
     "subscribed": "{email} suscrito correctamente",
     "subscribeError": "Ups! Hubo un error: {error}"

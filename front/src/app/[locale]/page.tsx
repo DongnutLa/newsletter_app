@@ -1,12 +1,14 @@
-import Home from "@/components/Home";
+import HomeContainer from "@/container/HomeContainer";
+import { listTopics } from "@/lib/services/topics";
 
 export default async function HomePage() {
-  const newsletters = await getInitialData();
+  const topics = await getInitialData();
 
-  return <Home newsletters={newsletters} />;
+  return <HomeContainer topics={topics} />;
 }
 
 const getInitialData = async () => {
-  // Get newsletters
-  return [];
+  const topics = await listTopics();
+
+  return topics;
 };

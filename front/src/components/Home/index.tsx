@@ -1,62 +1,63 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React from "react";
 import {
   HomeWrapper,
   NewsletterEmail,
   NewsletterInput,
   NewsletterTitle,
   NewsletterSubmit,
+  NewsletterWrapper,
 } from "./Home.sty";
-import { useTranslations } from "next-intl";
-import { registerToNewsletters } from "@/lib/services/users";
 import { validateEmail } from "@/lib/utils/email-validation";
-import { toast } from "react-toastify";
+import { Checkbox, Col, GetProp, Row } from "antd";
 
 interface HomeProps {
-  newsletters: any[];
+  topics: string[];
+  email: string;
+  selectedTopics: string[];
+  onChange: GetProp<any, "onChange">;
+  handleSubscribe: () => void;
+  onSetEmail: (value: string) => void;
+  t: (...args0: any) => string;
 }
 
-const Home = ({}: HomeProps) => {
-  const [email, setEmail] = useState("");
-  const t = useTranslations("Home");
-
-  const handleSubscribe = useCallback(() => {
-    if (!validateEmail(email)) {
-      toast.error(t("invalidEmail"));
-      return;
-    }
-
-    toast.promise(() => registerToNewsletters(email), {
-      pending: t("subscribing"),
-      success: {
-        render() {
-          setEmail("");
-          return t("subscribed", { email });
-        },
-      },
-      error: {
-        render({ data }) {
-          const err = data as any;
-          return t("subscribeError", { error: err?.response?.code ?? err });
-        },
-      },
-    });
-  }, [email, t]);
-
+const Home = ({
+  topics,
+  email,
+  selectedTopics,
+  onChange,
+  handleSubscribe,
+  onSetEmail,
+  t,
+}: HomeProps) => {
   return (
     <HomeWrapper>
-      <NewsletterTitle>{t("title")}</NewsletterTitle>
-      <NewsletterInput>
-        <NewsletterEmail
-          onChange={({ target }) => setEmail(target.value)}
-          placeholder="example@example.com"
-          value={email}
-        />
-        <NewsletterSubmit onClick={handleSubscribe}>
-          {t("subscribe")}
-        </NewsletterSubmit>
-      </NewsletterInput>
+      <NewsletterWrapper>
+        <NewsletterTitle>{t("title")}</NewsletterTitle>
+        <NewsletterInput>
+          <NewsletterEmail
+            onChange={({ target }) => onSetEmail(target.value)}
+            placeholder="example@example.com"
+            value={email}
+          />
+          <NewsletterSubmit
+            disabled={!selectedTopics.length || !validateEmail(email)}
+            onClick={handleSubscribe}
+          >
+            {t("subscribe")}
+          </NewsletterSubmit>
+        </NewsletterInput>
+        <Checkbox.Group defaultValue={["Apple"]} onChange={onChange}>
+          <Row>
+            {[...topics].map((top) => (
+              <Col span={8} key={top}>
+                <Checkbox value={top}>{top}</Checkbox>
+              </Col>
+            ))}
+          </Row>
+        </Checkbox.Group>
+      </NewsletterWrapper>
     </HomeWrapper>
   );
 };

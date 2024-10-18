@@ -1,9 +1,12 @@
 import { axiosMethod } from "../api/axios";
 
-export const registerToNewsletters = async (email: string): Promise<void> => {
+export const registerToNewsletters = async (
+  email: string,
+  topics: string[]
+): Promise<void> => {
   await axiosMethod({
     name: "registerToNewsletters",
-    params: { email },
+    params: { email, topics: topics.join(",") },
   });
 };
 

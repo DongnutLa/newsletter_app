@@ -15,7 +15,7 @@ type Newsletter struct {
 	Topic      string             `json:"topic" bson:"topic"`
 	Active     bool               `json:"active" bson:"active"`
 	Schedule   string             `json:"schedule" bson:"schedule"`
-	SentCount  uint64             `json:"SentCount" bson:"SentCount"`
+	SentCount  uint64             `json:"sentCount" bson:"sentCount"`
 	Timestamp  *time.Time         `json:"timestamp" bson:"timestamp"`
 }
 
