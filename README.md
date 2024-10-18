@@ -4,6 +4,15 @@
 
 This App was developed with Go & React. Using MongoDB, Cloudinary as Bucket, SMTP with Google, JWT validation and more.
 
+## Basic flow
+
+1. Topics must be preloaded in database.
+2. User can subscribe for one or more topics.
+3. Admin can login into the admin app entering the route /admin in browser.
+4. Admin can list Newsletters and create them for specific topics uploading a image, adding more info with rich text and selecting recipients from a list. Admin even can add one more email to the recipients list of the newsletter.
+5. Admin can send email just clicking on Send Email button in newsletters list.
+6. User can receive emails and can unsubscribe for a specific topic clicking in link text on emails.
+
 ## Features
 
 - Groups of endpoints:
@@ -12,14 +21,14 @@ This App was developed with Go & React. Using MongoDB, Cloudinary as Bucket, SMT
   - /admin -> Login for admin purposes
   - /files -> Upload files to Cloudinary
   - /topics -> Just read newsletters' topics
-- Asynchronous processes for Mailing and propagations using an internal Event-Driven Architecture
+- Asynchronous processes for Mailing and propagations using an internal Event-Driven Architecture. Emails are sent asynchronously despite they fail or not
 - Rendered HTML Template for emails with some editable extra info
 - Middlewares for authentication and file uploading
 - Repository pattern for comunicating with database
 - Hexagonal architecture for backend development
 - Container/View Pattern for frontend development, separating external services from internal bussiness logic
 - Dockerized both Frontend and Backend and using docker-compose
-- Unit tests for newsletter list and send methods
+- Unit tests for newsletter list and send methods; JWT service methods; and mailer service method
 
 ## Execution
 
