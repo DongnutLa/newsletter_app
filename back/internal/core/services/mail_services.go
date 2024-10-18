@@ -54,15 +54,23 @@ func (m *MailService) SendEmails(ctx context.Context, payload map[string]interfa
 
 	var wg sync.WaitGroup
 
+	maxGoroutines := 10
+	semaphore := make(chan struct{}, maxGoroutines)
+
 	for _, recipient := range newsletter.Recipients {
 		wg.Add(1)
-		go m.sendEmail(recipient, newsletter, &wg)
+		semaphore <- struct{}{}
+		go m.sendEmail(recipient, newsletter, &wg, semaphore)
 	}
 	wg.Wait()
+
 	return nil
 }
 
-func (m *MailService) sendEmail(recipient string, newsletter *domain.Newsletter, wg *sync.WaitGroup) error {
+func (m *MailService) sendEmail(recipient string, newsletter *domain.Newsletter, wg *sync.WaitGroup, semaphore chan struct{}) error {
+	defer func() {
+		<-semaphore
+	}()
 	defer wg.Done()
 
 	url := fmt.Sprintf("%s/v1/users/unregister?email=%s&topic=%s", m.baseUrl, recipient, newsletter.Topic)
