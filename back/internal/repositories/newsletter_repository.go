@@ -9,13 +9,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+//go:generate mockery --name=INewsletterRepository --inpackage=true
+type INewsletterRepository interface {
+	ports.Repository[domain.Newsletter, any]
+}
 type NewsletterRepository struct {
-	Repo ports.Repository[domain.Newsletter, any]
+	ports.Repository[domain.Newsletter, any]
 }
 
-func NewNewsletterRepository(ctx context.Context, collection string, connection *mongo.Database, logger *zerolog.Logger) *NewsletterRepository {
+func NewNewsletterRepository(ctx context.Context, collection string, connection *mongo.Database, logger *zerolog.Logger) INewsletterRepository {
 	repo := BuildNewRepository[domain.Newsletter, any](ctx, collection, connection, logger)
 	return &NewsletterRepository{
-		Repo: repo,
+		repo,
 	}
 }

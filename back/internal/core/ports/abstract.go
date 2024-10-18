@@ -20,6 +20,7 @@ type UpdateOpts struct {
 	Upsert  bool
 }
 
+//go:generate mockery --name=Repository --inpackage=true
 type Repository[T any, Q any] interface {
 	FindOne(ctx context.Context, opts FindOneOpts, result *T) error
 	UpdateOne(ctx context.Context, opts UpdateOpts) (*T, error)

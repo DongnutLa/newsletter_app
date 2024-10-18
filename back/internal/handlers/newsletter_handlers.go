@@ -59,7 +59,9 @@ func (n *NewsletterHandlers) SendNewsletter(c *fiber.Ctx) error {
 		return c.Status(apiErr.HttpStatusCode).JSON(apiErr)
 	}
 
-	apiErr := n.newsletterService.SendNewsletter(c.Context(), &dto)
+	newsletter := domain.Newsletter{}
+
+	apiErr := n.newsletterService.SendNewsletter(c.Context(), &dto, &newsletter)
 	if apiErr != nil {
 		return c.Status(apiErr.HttpStatusCode).JSON(apiErr)
 	}

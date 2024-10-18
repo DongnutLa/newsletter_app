@@ -12,7 +12,7 @@ import (
 
 type NewsletterService struct {
 	logger         *zerolog.Logger
-	newsletterRepo *repositories.NewsletterRepository
+	newsletterRepo repositories.INewsletterRepository
 	messaging      ports.EventMessaging
 }
 
@@ -21,7 +21,7 @@ var _ ports.NewsletterService = (*NewsletterService)(nil)
 func NewNewsletterService(
 	ctx context.Context,
 	logger *zerolog.Logger,
-	repository *repositories.NewsletterRepository,
+	repository repositories.INewsletterRepository,
 	messaging ports.EventMessaging,
 ) *NewsletterService {
 	return &NewsletterService{
@@ -38,7 +38,7 @@ func (n *NewsletterService) ListNewsletters(ctx context.Context, params *domain.
 		Take: params.PageSize,
 		Skip: params.PageSize * (params.Page - 1),
 	}
-	total, err := n.newsletterRepo.Repo.FindMany(ctx, opts, &result, true)
+	total, err := n.newsletterRepo.FindMany(ctx, opts, &result, true)
 	if err != nil {
 		return nil, domain.ErrFetchNewsletters
 	}
@@ -59,22 +59,20 @@ func (n *NewsletterService) ListNewsletters(ctx context.Context, params *domain.
 func (n *NewsletterService) CreateNewsletter(ctx context.Context, dto *domain.CreateNewsletterDTO) (*domain.Newsletter, *domain.ApiError) {
 	newsletter := domain.NewNewsletter(dto)
 
-	if err := n.newsletterRepo.Repo.InsertOne(ctx, *newsletter); err != nil {
+	if err := n.newsletterRepo.InsertOne(ctx, *newsletter); err != nil {
 		return nil, domain.ErrCreateNewsletter
 	}
 
 	return newsletter, nil
 }
 
-func (n *NewsletterService) SendNewsletter(ctx context.Context, dto *domain.SendNewsletterDTO) *domain.ApiError {
-	newsletter := domain.Newsletter{}
-
+func (n *NewsletterService) SendNewsletter(ctx context.Context, dto *domain.SendNewsletterDTO, newsletter *domain.Newsletter) *domain.ApiError {
 	opts := ports.FindOneOpts{
 		Filter: map[string]interface{}{
 			"_id": dto.NewsletterId,
 		},
 	}
-	if err := n.newsletterRepo.Repo.FindOne(ctx, opts, &newsletter); err != nil {
+	if err := n.newsletterRepo.FindOne(ctx, opts, newsletter); err != nil {
 		return domain.ErrNewsletterNotFound
 	}
 
@@ -86,7 +84,7 @@ func (n *NewsletterService) SendNewsletter(ctx context.Context, dto *domain.Send
 			"sentCount": newsletter.SentCount + 1,
 		},
 	}
-	_, err := n.newsletterRepo.Repo.UpdateOne(ctx, updOpts)
+	_, err := n.newsletterRepo.UpdateOne(ctx, updOpts)
 	if err != nil {
 		// Log error but allows to send the emails
 		n.logger.Error().Err(err).Msgf("Failed to update sent count for newsletter %s", newsletter.ID.Hex())
@@ -96,7 +94,7 @@ func (n *NewsletterService) SendNewsletter(ctx context.Context, dto *domain.Send
 	evt := domain.MessageEvent{
 		EventTopic: domain.SendEmailTopic,
 		Data: map[string]interface{}{
-			"newsletter": &newsletter,
+			"newsletter": newsletter,
 		},
 	}
 	n.messaging.SendMessage(ctx, &evt)
@@ -116,7 +114,7 @@ func (n *NewsletterService) UnregisterUserFromNewsletter(ctx context.Context, pa
 			"topic": newsTopic,
 		},
 	}
-	if err := n.newsletterRepo.Repo.FindOne(ctx, opts, &newsletter); err != nil {
+	if err := n.newsletterRepo.FindOne(ctx, opts, &newsletter); err != nil {
 		n.logger.Error().Err(err).Msgf("Newsletter for topic %s not found", newsTopic)
 		return err
 	}
@@ -134,7 +132,7 @@ func (n *NewsletterService) UnregisterUserFromNewsletter(ctx context.Context, pa
 		},
 	}
 
-	_, err := n.newsletterRepo.Repo.UpdateOne(ctx, updOpts)
+	_, err := n.newsletterRepo.UpdateOne(ctx, updOpts)
 	if err != nil {
 		n.logger.Error().Err(err).Msgf("Failed to update newsletter for topic %s", newsTopic)
 		return err
