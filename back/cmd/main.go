@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"os"
 	"strconv"
 	"sync"
@@ -15,6 +16,7 @@ import (
 	"github.com/DongnutLa/newsletter_app/internal/repositories"
 	"github.com/DongnutLa/newsletter_app/internal/server"
 	"github.com/DongnutLa/newsletter_app/internal/utils"
+	"github.com/gofiber/template/html/v2"
 	"github.com/rs/zerolog"
 	gomail "gopkg.in/mail.v2"
 )
@@ -37,6 +39,13 @@ func main() {
 	}
 
 	dialer := gomail.NewDialer(host, intPort, user, pwd)
+	engine := html.New("./internal/template", ".html")
+	// engine := html.NewFileSystem(http.FS(viewsfs), ".html")
+	engine.AddFunc(
+		"unescape", func(s string) template.HTML {
+			return template.HTML(s)
+		},
+	)
 
 	//repositories
 	userRepository := repositories.NewUserRepository(context.TODO(), "users", conn.Database, &logger)
@@ -54,7 +63,7 @@ func main() {
 	adminService := services.NewAdminService(context.TODO(), &logger, adminRepository, jwtService)
 	newsletterService := services.NewNewsletterService(context.TODO(), &logger, newsletterRepository, messaging)
 	fileService := services.NewFilesService(context.TODO(), &logger)
-	mailService := services.NewMailService(context.TODO(), &logger, dialer)
+	mailService := services.NewMailService(context.TODO(), &logger, dialer, engine)
 	topicService := services.NewTopicService(context.TODO(), &logger, topicRepository)
 
 	//handlers
@@ -88,6 +97,7 @@ func main() {
 		topicHandlers,
 		fileMiddleware,
 		authMiddleware,
+		engine,
 	)
 	httpServer.Initialize()
 }

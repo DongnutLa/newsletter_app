@@ -78,6 +78,20 @@ func (n *NewsletterService) SendNewsletter(ctx context.Context, dto *domain.Send
 		return domain.ErrNewsletterNotFound
 	}
 
+	updOpts := ports.UpdateOpts{
+		Filter: map[string]interface{}{
+			"_id": dto.NewsletterId,
+		},
+		Payload: &map[string]interface{}{
+			"sentCount": newsletter.SentCount + 1,
+		},
+	}
+	_, err := n.newsletterRepo.Repo.UpdateOne(ctx, updOpts)
+	if err != nil {
+		// Log error but allows to send the emails
+		n.logger.Error().Err(err).Msgf("Failed to update sent count for newsletter %s", newsletter.ID.Hex())
+	}
+
 	// Send email event
 	evt := domain.MessageEvent{
 		EventTopic: domain.SendEmailTopic,
@@ -126,7 +140,7 @@ func (n *NewsletterService) UnregisterUserFromNewsletter(ctx context.Context, pa
 		return err
 	}
 
-	n.logger.Error().Err(err).Msgf("Successfully updated newsletter for topic %s and user %s", newsTopic, email)
+	n.logger.Info().Msgf("Successfully updated newsletter for topic %s and user %s", newsTopic, email)
 
 	return nil
 }

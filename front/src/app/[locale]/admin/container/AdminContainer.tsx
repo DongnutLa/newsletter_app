@@ -12,22 +12,25 @@ const AdminContainer = ({ newsletters }: { newsletters: Newsletter[] }) => {
   const t = useTranslations("Newsletter");
   const { push } = useRouter();
 
-  const sendNewsletter = useCallback((id: string) => {
-    toast.promise(() => sendNewsletters({ newsletterId: id }), {
-      pending: t("pending"),
-      success: t("success"),
-      error: {
-        render({ data }) {
-          const err = data as any;
-          return t("error", { error: err?.response?.data?.message ?? err });
+  const sendNewsletter = useCallback(
+    (id: string) => {
+      toast.promise(() => sendNewsletters({ newsletterId: id }), {
+        pending: t("pending"),
+        success: t("success"),
+        error: {
+          render({ data }) {
+            const err = data as any;
+            return t("error", { error: err?.response?.data?.message ?? err });
+          },
         },
-      },
-    });
-  }, []);
+      });
+    },
+    [t]
+  );
 
   const goToCreateNewsletter = useCallback(() => {
     push("/es/admin/create");
-  }, []);
+  }, [push]);
 
   return (
     <NewsletterList

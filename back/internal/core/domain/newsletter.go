@@ -1,6 +1,10 @@
 package domain
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type Newsletter struct {
 	ID         primitive.ObjectID `json:"id" bson:"_id"`
@@ -11,10 +15,13 @@ type Newsletter struct {
 	Topic      string             `json:"topic" bson:"topic"`
 	Active     bool               `json:"active" bson:"active"`
 	Schedule   string             `json:"schedule" bson:"schedule"`
+	SentCount  uint64             `json:"SentCount" bson:"SentCount"`
+	Timestamp  *time.Time         `json:"timestamp" bson:"timestamp"`
 }
 
 func NewNewsletter(dto *CreateNewsletterDTO) *Newsletter {
 	id := primitive.NewObjectID()
+	now := time.Now()
 
 	return &Newsletter{
 		ID:         id,
@@ -23,5 +30,6 @@ func NewNewsletter(dto *CreateNewsletterDTO) *Newsletter {
 		Recipients: dto.Recipients,
 		Subject:    dto.Subject,
 		Topic:      dto.Topic,
+		Timestamp:  &now,
 	}
 }

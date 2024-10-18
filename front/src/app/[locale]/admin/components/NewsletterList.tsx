@@ -9,6 +9,8 @@ import {
   NewsletterImageWrapper,
   NewsletterImg,
   NewsletterListContainer,
+  NewsletterMetadata,
+  NewsletterMetaWrapper,
   NewsletterSendButton,
   NewslettersWrapper,
   NewsletterTitle,
@@ -43,6 +45,17 @@ const NewsletterList = ({
             </NewsletterImageWrapper>
             <NewsletterBody>{newsletter.subject}</NewsletterBody>
             <NewsletterFooter>
+              <NewsletterMetaWrapper>
+                <NewsletterMetadata>
+                  {t("mailsSent")}
+                  {newsletter.sentCount ?? 0}
+                </NewsletterMetadata>
+                <NewsletterMetadata>
+                  {t("subscribedUsers")}
+                  {newsletter.recipients?.length ?? 0}
+                </NewsletterMetadata>
+                <hr style={{ marginTop: 4 }} />
+              </NewsletterMetaWrapper>
               <NewsletterSendButton
                 onClick={() => sendNewsletter(newsletter.id)}
               >

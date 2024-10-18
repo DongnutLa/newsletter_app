@@ -1,10 +1,10 @@
-import { listUsers } from "@/lib/services/users";
 import CreateNewsletterContainer from "../container/CreateNewsletterContainer";
 import { cookies } from "next/headers";
+import { listTopics } from "@/lib/services/topics";
 
 const CreatePage = async () => {
-  const users = await getInitialData();
-  return <CreateNewsletterContainer users={users} />;
+  const topics = await getInitialData();
+  return <CreateNewsletterContainer topics={topics} />;
 };
 
 export default CreatePage;
@@ -12,5 +12,5 @@ export default CreatePage;
 const getInitialData = async () => {
   const token = cookies().get("_auth_")?.value;
 
-  return await listUsers(token);
+  return await listTopics(token);
 };

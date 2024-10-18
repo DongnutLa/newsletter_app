@@ -5,12 +5,14 @@ go 1.23.1
 require (
 	github.com/cloudinary/cloudinary-go/v2 v2.9.0
 	github.com/gofiber/fiber/v2 v2.52.5
+	github.com/gofiber/template/html/v2 v2.1.2
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/mustafaturan/bus/v3 v3.0.3
 	github.com/mustafaturan/monoton/v3 v3.0.0
 	github.com/rs/zerolog v1.33.0
 	github.com/samber/lo v1.47.0
 	github.com/spf13/viper v1.19.0
+	github.com/tdewolff/minify v2.3.6+incompatible
 	go.mongodb.org/mongo-driver v1.17.1
 	gopkg.in/mail.v2 v2.3.1
 )
@@ -19,6 +21,8 @@ require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/creasty/defaults v1.7.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/gofiber/template v1.8.3 // indirect
+	github.com/gofiber/utils v1.1.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.5.0 // indirect
 	github.com/gorilla/schema v1.4.1 // indirect
@@ -39,6 +43,8 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
+	github.com/tdewolff/parse v2.3.4+incompatible // indirect
+	github.com/tdewolff/test v1.0.10 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect

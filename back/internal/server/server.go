@@ -6,6 +6,7 @@ import (
 	"github.com/DongnutLa/newsletter_app/internal/core/ports"
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/template/html/v2"
 )
 
 type Server struct {
@@ -17,6 +18,7 @@ type Server struct {
 	filesHandlers      ports.FilesHandlers
 	fileMiddleware     fiber.Handler
 	authMiddleware     fiber.Handler
+	engine             *html.Engine
 	//middlewares ports.Middlewares
 }
 
@@ -28,6 +30,7 @@ func NewServer(
 	tHandlers ports.TopicHandlers,
 	fileMiddleware fiber.Handler,
 	authMiddleware fiber.Handler,
+	engine *html.Engine,
 ) *Server {
 	return &Server{
 		userHandlers:       uHandlers,
@@ -37,11 +40,14 @@ func NewServer(
 		topicHandlers:      tHandlers,
 		fileMiddleware:     fileMiddleware,
 		authMiddleware:     authMiddleware,
+		engine:             engine,
 	}
 }
 
 func (s *Server) Initialize() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		Views: s.engine,
+	})
 	app.Use(cors.New())
 
 	v1 := app.Group("/v1")

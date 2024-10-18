@@ -48,6 +48,16 @@ export const NewsletterFooter = styled.div`
   padding: 12px;
 `;
 
+export const NewsletterMetaWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const NewsletterMetadata = styled.span`
+  font-size: 12px;
+  color: #8a8a8a;
+`;
+
 export const NewsletterSendButton = styled.button`
   border-radius: 10px;
   color: white;

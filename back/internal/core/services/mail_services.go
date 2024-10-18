@@ -1,6 +1,7 @@
 package services
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -11,7 +12,10 @@ import (
 	"github.com/DongnutLa/newsletter_app/internal/core/domain"
 	"github.com/DongnutLa/newsletter_app/internal/core/ports"
 	"github.com/DongnutLa/newsletter_app/internal/utils"
+	"github.com/gofiber/template/html/v2"
 	"github.com/rs/zerolog"
+	"github.com/tdewolff/minify"
+	mHtml "github.com/tdewolff/minify/html"
 	gomail "gopkg.in/mail.v2"
 )
 
@@ -19,16 +23,24 @@ type MailService struct {
 	logger     *zerolog.Logger
 	mailDialer *gomail.Dialer
 	mail       string
+	engine     *html.Engine
 }
 
 var _ ports.MailService = (*MailService)(nil)
 
-func NewMailService(ctx context.Context, logger *zerolog.Logger, dialer *gomail.Dialer) *MailService {
+func NewMailService(
+	ctx context.Context,
+	logger *zerolog.Logger,
+	dialer *gomail.Dialer,
+	engine *html.Engine,
+) *MailService {
 	mail := utils.GetConfig("smtp_mail")
+
 	return &MailService{
 		logger:     logger,
 		mailDialer: dialer,
 		mail:       mail,
+		engine:     engine,
 	}
 }
 
@@ -50,20 +62,33 @@ func (m *MailService) SendEmails(ctx context.Context, payload map[string]interfa
 func (m *MailService) sendEmail(recipient string, newsletter *domain.Newsletter, wg *sync.WaitGroup) error {
 	defer wg.Done()
 
+	url := fmt.Sprintf("http://localhost:3000/v1/users/unregister?email=%s&topic=%s", recipient, newsletter.Topic)
+
+	buf := new(bytes.Buffer)
+	err := m.engine.Render(buf, "template", map[string]string{
+		"UnsubscribeUrl": url,
+		"Template":       newsletter.Template,
+	})
+	if err != nil {
+		m.logger.Err(err).Msg("Failed rendering template")
+		return err
+	}
+
+	mediaType := "text/html"
+	mn := minify.New()
+	mn.AddFunc(mediaType, mHtml.Minify)
+	html, err := mn.String(mediaType, buf.String())
+	if err != nil {
+		m.logger.Err(err).Msg("Failed rendering minified template")
+		return err
+	}
+
 	message := gomail.NewMessage()
 	// Set email headers
 	message.SetHeader("From", m.mail)
 	message.SetHeader("To", recipient)
 	message.SetHeader("Subject", newsletter.Subject)
-
-	//Attatch file
-	template := fmt.Sprintf(`
-    %s
-    <a href="http://localhost:3000/v1/users/unregister?email=%s&topic=%s">
-      <p>Unsubscribe from this topic here</p>
-    </a>
-  `, newsletter.Template, recipient, newsletter.Topic)
-	message.SetBody("text/html", template)
+	message.SetBody("text/html", html)
 
 	file, ext, err := downloadFile(newsletter.File)
 	if err != nil {
@@ -72,6 +97,9 @@ func (m *MailService) sendEmail(recipient string, newsletter *domain.Newsletter,
 	}
 	defer file.Close()
 	message.AttachReader(fmt.Sprintf("newsletter.%s", ext), file)
+	if ext == "png" {
+		message.EmbedReader("newsletter.png", file)
+	}
 
 	if err := m.mailDialer.DialAndSend(message); err != nil {
 		m.logger.Error().Err(err).Msg("Failed to send email")

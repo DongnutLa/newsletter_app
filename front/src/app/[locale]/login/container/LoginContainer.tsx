@@ -17,13 +17,14 @@ export interface LoginFormData {
 const LoginContainer = () => {
   const { push } = useRouter();
   const t = useTranslations("Login");
+
   const handleValidateForm = (values: LoginFormData) => {
     const errors = {} as LoginFormData;
 
     if (!values.email) {
-      errors.email = "Required";
+      errors.email = t("validations.emailRequired");
     } else if (!validateEmail(values.email)) {
-      errors.email = "Invalid email address";
+      errors.email = t("validations.invalidEmail");
     }
     return errors;
   };

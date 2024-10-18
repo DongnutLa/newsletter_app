@@ -6,6 +6,7 @@ export interface Newsletter {
   recipients: string[];
   active: boolean;
   schedule?: string;
+  sentCount?: number;
 }
 
 export interface CreateNewsletterDTO {
@@ -13,6 +14,7 @@ export interface CreateNewsletterDTO {
   file: string;
   recipients: string[];
   subject: string;
+  topic: string;
 }
 
 export interface SendNewsletterDTO {
@@ -25,4 +27,5 @@ export const CREATE_NEWSLETTER_DTO_INITIALS: CreateNewsletterDTO = {
   file: "",
   recipients: [],
   subject: "",
+  topic: "",
 };

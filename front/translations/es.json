@@ -17,7 +17,11 @@
     "pending": "Iniciando sesión...",
     "success": "Bienvenido/a {name}",
     "error": "{error}",
-    "invalidAuth": "Credenciales inválidas {error}"
+    "invalidAuth": "Credenciales inválidas {error}",
+    "validations": {
+      "emailRequired": "El correo es requerido",
+      "invalidEmail": "Digita un correo válido"
+    }
   },
   "Newsletter": {
     "title": "Boletines",
@@ -26,19 +30,30 @@
     "success": "Boletin enviado correctamente",
     "error": "Hubo un error enviando el boletin",
     "createNewsletter": "Crear nuevo boletín",
+    "mailsSent": "Correos enviados: ",
+    "subscribedUsers": "Usuarios suscritos: ",
     "Form": {
       "title": "Crear boletín",
       "recipients": "Destinatarios",
+      "topic": "Tópico",
       "placeholder": {
         "template": "Plantilla HTML",
         "subject": "Ausnto",
-        "recipients": "Agregar correos"
+        "recipients": "Agregar correos",
+        "topic": "Tópico"
       },
       "addItem": "Agregar",
       "submit": "Crear",
       "pending": "Guardando cambios...",
       "success": "Boletín creado correctamente",
-      "error": "Hubo un error creando el boletin. {error}"
+      "error": "Hubo un error creando el boletin. {error}",
+      "validations": {
+        "template": "El template es requerido",
+        "file": "El archivo es requerido",
+        "recipients": "Los destinatarios son requeridos",
+        "subject": "El asunto es requerido",
+        "topic": "El tópico es requerido"
+      }
     }
   },
   "UploadImage": "Subir archivo"

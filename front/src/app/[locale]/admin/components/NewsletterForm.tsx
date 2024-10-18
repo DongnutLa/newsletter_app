@@ -10,7 +10,6 @@ import {
   NewsletterFormWrapper,
   NewsletterSubmit,
   NewsletterUploaderWrapper,
-  TextArea,
 } from "./NewsletterForm.sty";
 import {
   CREATE_NEWSLETTER_DTO_INITIALS,
@@ -19,30 +18,39 @@ import {
 import Uploader from "@/components/Uploader";
 import { Button, Divider, Select, Space, Input as AntInput } from "antd";
 import type { InputRef } from "antd";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import { validateEmail } from "@/lib/utils/email-validation";
+import RichText from "@/components/RichText";
 
 interface NewsletterFormProps {
   users: string[];
+  topics: string[];
   handleValidateForm: (values: CreateNewsletterDTO) => CreateNewsletterDTO;
   handleSubmitForm: (values: CreateNewsletterDTO) => void;
+  handleSelectTopic: (val: string) => void;
   t: (...args0: any) => string;
 }
 
 const NewsletterForm = ({
   users,
+  topics,
   handleValidateForm,
   handleSubmitForm,
+  handleSelectTopic,
   t,
 }: NewsletterFormProps) => {
   const inputRef = useRef<InputRef>(null);
   const [items, setItems] = useState(users);
-  const [email, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [invalidEmail, setInvalidEmail] = useState(false);
 
+  useEffect(() => {
+    setItems(users);
+  }, [users]);
+
   const onNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
+    setEmail(event.target.value);
     setInvalidEmail(false);
   };
 
@@ -95,7 +103,7 @@ const NewsletterForm = ({
               {errors.subject && touched.subject && errors.subject}
             </ErrorFeedback>
 
-            <InputWrapper textarea>
+            {/* <InputWrapper textarea>
               <TextArea
                 name="template"
                 rows={50}
@@ -104,9 +112,27 @@ const NewsletterForm = ({
                 value={values.template}
                 placeholder={t("placeholder.template")}
               />
-            </InputWrapper>
+            </InputWrapper> */}
+            <RichText
+              id="template"
+              handleChangeRich={(key, val) => setFieldValue(key as string, val)}
+              value={values.template}
+            />
             <ErrorFeedback>
               {errors.template && touched.template && errors.template}
+            </ErrorFeedback>
+
+            <Select
+              style={{ width: 350 }}
+              onSelect={(val) => {
+                setFieldValue("topic", val as unknown as string);
+                handleSelectTopic(val);
+              }}
+              placeholder={t("topic")}
+              options={topics.map((t) => ({ value: t, label: t }))}
+            />
+            <ErrorFeedback>
+              {errors.topic && touched.topic && errors.topic}
             </ErrorFeedback>
 
             <NewsletterUploaderWrapper>
@@ -120,10 +146,14 @@ const NewsletterForm = ({
                 onDeletedImage={() => setFieldValue("file", "")}
               />
             </NewsletterUploaderWrapper>
+            <ErrorFeedback>
+              {errors.file && touched.file && errors.file}
+            </ErrorFeedback>
 
             <Select
-              style={{ width: 300 }}
+              style={{ width: 350 }}
               mode="multiple"
+              disabled={!users.length}
               placeholder={t("recipients")}
               onSelect={(val) =>
                 setFieldValue("recipients", [
@@ -169,9 +199,11 @@ const NewsletterForm = ({
               options={items.map((item) => ({
                 label: item,
                 value: item,
-                disabled: users.includes(item),
               }))}
             />
+            <ErrorFeedback>
+              {errors.recipients && touched.recipients && errors.recipients}
+            </ErrorFeedback>
 
             <NewsletterSubmit type="submit" disabled={isSubmitting}>
               {t("submit")}
