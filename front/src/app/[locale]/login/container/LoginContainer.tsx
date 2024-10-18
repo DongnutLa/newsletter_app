@@ -37,7 +37,7 @@ const LoginContainer = () => {
           render({ data }) {
             // save token
             Cookies.set("_auth_", data.token, { secure: false });
-            push("/es/admin");
+            push("/admin");
 
             return t("success", { name: data.name });
           },

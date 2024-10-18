@@ -58,7 +58,7 @@ const CreateNewsletterContainer = () => {
         pending: t("pending"),
         success: {
           render() {
-            push("/es/admin");
+            push("/admin");
 
             return t("success", { subject: values.subject });
           },

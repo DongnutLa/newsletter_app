@@ -35,7 +35,7 @@ const AdminContainer = () => {
   );
 
   const goToCreateNewsletter = useCallback(() => {
-    push("/es/admin/create");
+    push("/admin/create");
   }, [push]);
 
   return (
