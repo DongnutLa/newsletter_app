@@ -7,11 +7,18 @@ import { Checkbox, GetProp } from "antd";
 import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import { toast } from "react-toastify";
+import { listTopics } from "@/lib/services/topics";
+import { useQuery } from "@tanstack/react-query";
 
-const HomeContainer = ({ topics }: { topics: string[] }) => {
+const HomeContainer = () => {
   const [email, setEmail] = useState("");
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const t = useTranslations("Home");
+
+  const { data: topics } = useQuery({
+    queryKey: ["topics"],
+    queryFn: () => listTopics(),
+  });
 
   const handleSubscribe = useCallback(() => {
     if (!validateEmail(email)) {
@@ -52,7 +59,7 @@ const HomeContainer = ({ topics }: { topics: string[] }) => {
 
   return (
     <Home
-      topics={topics}
+      topics={topics ?? []}
       email={email}
       selectedTopics={selectedTopics}
       onSetEmail={onSetEmail}

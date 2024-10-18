@@ -23,6 +23,7 @@ type MailService struct {
 	logger     *zerolog.Logger
 	mailDialer *gomail.Dialer
 	mail       string
+	baseUrl    string
 	engine     *html.Engine
 }
 
@@ -35,11 +36,13 @@ func NewMailService(
 	engine *html.Engine,
 ) *MailService {
 	mail := utils.GetConfig("smtp_mail")
+	baseUrl := utils.GetConfig("base_url")
 
 	return &MailService{
 		logger:     logger,
 		mailDialer: dialer,
 		mail:       mail,
+		baseUrl:    baseUrl,
 		engine:     engine,
 	}
 }
@@ -62,7 +65,7 @@ func (m *MailService) SendEmails(ctx context.Context, payload map[string]interfa
 func (m *MailService) sendEmail(recipient string, newsletter *domain.Newsletter, wg *sync.WaitGroup) error {
 	defer wg.Done()
 
-	url := fmt.Sprintf("http://localhost:3000/v1/users/unregister?email=%s&topic=%s", recipient, newsletter.Topic)
+	url := fmt.Sprintf("%s/v1/users/unregister?email=%s&topic=%s", m.baseUrl, recipient, newsletter.Topic)
 
 	buf := new(bytes.Buffer)
 	err := m.engine.Render(buf, "template", map[string]string{

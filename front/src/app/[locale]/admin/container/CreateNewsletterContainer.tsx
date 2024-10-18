@@ -9,11 +9,17 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { listUsers } from "@/lib/services/users";
+import { listTopics } from "@/lib/services/topics";
 
-const CreateNewsletterContainer = ({ topics }: { topics: string[] }) => {
+const CreateNewsletterContainer = () => {
   const [selectedTopic, setSelectedTopic] = useState("");
   const t = useTranslations("Newsletter.Form");
   const { push } = useRouter();
+
+  const { data: topics } = useQuery({
+    queryKey: ["topics"],
+    queryFn: () => listTopics(),
+  });
 
   const { data: users } = useQuery({
     queryKey: ["users", selectedTopic],
@@ -79,7 +85,7 @@ const CreateNewsletterContainer = ({ topics }: { topics: string[] }) => {
     <NewsletterForm
       t={t}
       users={users ?? []}
-      topics={topics}
+      topics={topics ?? []}
       handleSubmitForm={handleSubmitForm}
       handleValidateForm={handleValidateForm}
       handleSelectTopic={handleSelectTopic}

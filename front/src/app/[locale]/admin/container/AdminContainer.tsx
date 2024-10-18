@@ -1,16 +1,22 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import NewsletterList from "../components/NewsletterList";
-import { Newsletter } from "@/lib/models";
 import { useTranslations } from "next-intl";
-import { sendNewsletters } from "@/lib/services/newsletter";
+import { sendNewsletters, listNewsletters } from "@/lib/services/newsletter";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
-const AdminContainer = ({ newsletters }: { newsletters: Newsletter[] }) => {
+const AdminContainer = () => {
   const t = useTranslations("Newsletter");
   const { push } = useRouter();
+
+  const { data } = useQuery({
+    queryKey: ["newsletters", "list"],
+    queryFn: () => listNewsletters({ page: 1, pageSize: 100 }),
+  });
+  const newsletters = useMemo(() => data?.data ?? [], [data]);
 
   const sendNewsletter = useCallback(
     (id: string) => {

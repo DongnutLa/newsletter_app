@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  api:
+    image: newsletter-api
+    container_name: newsletter-api
+    build:
+      context: ./back # Ruta de tu API
+    ports:
+      - "3000:3000"
+
+  nextjs:
+    image: newsletter-front
+    container_name: newsletter-front
+    build:
+      context: ./front # Ruta de tu app Next.js
+    ports:
+      - "4000:4000"
+    depends_on:
+      - api
