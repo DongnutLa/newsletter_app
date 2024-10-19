@@ -34,7 +34,7 @@ const Home = ({
   return (
     <HomeWrapper>
       <NewsletterWrapper>
-        <NewsletterTitle>{t("title")}</NewsletterTitle>
+        <NewsletterTitle id="title">{t("title")}</NewsletterTitle>
         <NewsletterInput>
           <NewsletterEmail
             onChange={({ target }) => onSetEmail(target.value)}
