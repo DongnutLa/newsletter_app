@@ -13,6 +13,12 @@ This App was developed with Go & React. Using MongoDB, Cloudinary as Bucket, SMT
 5. Admin can send email just clicking on Send Email button in newsletters list.
 6. User can receive emails and can unsubscribe for a specific topic clicking in link text on emails.
 
+## Special cases
+1. Send email from front to POST /newsletter/send just find and update newsletter entity and send an asynchronous event call. This is an internal bus event that sends emails in background
+    <img width="728" alt="Screenshot 2024-10-18 at 9 44 30 PM" src="https://github.com/user-attachments/assets/0e366ae4-8e21-4143-86ae-604c2e147ccc">
+2. Unsubscribe from newsletter topic from Email: Request to GET /users/unregister delete specified topic from user's topics list. Then, an asynchronous event call is sent to propagate the user topic deletion from newsletter recipients list   
+    <img width="712" alt="Screenshot 2024-10-18 at 9 48 00 PM" src="https://github.com/user-attachments/assets/70d09f87-b4cc-43b1-acd9-13fbdee4dd2b">
+
 ## Features
 
 - Groups of endpoints:
